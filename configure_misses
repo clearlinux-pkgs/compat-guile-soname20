@@ -1,0 +1,38 @@
+Configure miss: whether log works
+Configure miss: whether gai_strerrorA is declared
+Configure miss: log1p
+Configure miss: sys/sysmp.h
+Configure miss: sched_getaffinity_np
+Configure miss: sysmp
+Configure miss: timezone_t
+Configure miss: __uc_get_ar_bsp in -luca
+Configure miss: libc.h usability
+Configure miss: libc.h presence
+Configure miss: libc.h
+Configure miss: process.h usability
+Configure miss: process.h presence
+Configure miss: sys/stdtypes.h usability
+Configure miss: sys/stdtypes.h presence
+Configure miss: sys/stdtypes.h
+Configure miss: sys/utime.h usability
+Configure miss: sys/utime.h presence
+Configure miss: direct.h usability
+Configure miss: direct.h presence
+Configure miss: machine/fpu.h usability
+Configure miss: machine/fpu.h presence
+Configure miss: machine/fpu.h
+Configure miss: whether libc.h and unistd.h can be included together
+Configure miss: DINFINITY
+Configure miss: DQNAN
+Configure miss: chsize
+Configure miss: pthread_np.h usability
+Configure miss: pthread_np.h presence
+Configure miss: pthread_np.h
+Configure miss: whether hstrerror is declared
+Configure miss: struct sockaddr_in6.sin6_len
+Configure miss: whether localtime caches TZ
+Configure miss: whether we need POSIX to get struct utimbuf
+Configure miss: pthread_get_stackaddr_np
+Configure miss: pthread_attr_get_np
+Configure miss: whether PTHREAD_ONCE_INIT needs braces
+Configure miss: whether PTHREAD_MUTEX_INITIALIZER needs braces

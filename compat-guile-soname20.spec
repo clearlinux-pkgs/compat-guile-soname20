@@ -6,18 +6,17 @@
 #
 Name     : compat-guile-soname20
 Version  : 2.0.13
-Release  : 6
+Release  : 9
 URL      : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz
 Source0  : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz
-Source99 : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz.sig
+Source1 : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz.sig
 Summary  : GNU's Ubiquitous Intelligent Language for Extension (uninstalled)
 Group    : Development/Tools
-License  : GFDL-1.3 GPL-3.0 LGPL-3.0
-Requires: compat-guile-soname20-bin
-Requires: compat-guile-soname20-lib
-Requires: compat-guile-soname20-data
-Requires: compat-guile-soname20-doc
+License  : GPL-3.0 LGPL-3.0
+Requires: compat-guile-soname20-lib = %{version}-%{release}
+Requires: compat-guile-soname20-license = %{version}-%{release}
 BuildRequires : emacs
+BuildRequires : glibc-locale
 BuildRequires : gmp-dev
 BuildRequires : libunistring-dev
 BuildRequires : ncurses-dev
@@ -26,6 +25,8 @@ BuildRequires : pkgconfig(libffi)
 BuildRequires : readline-dev
 BuildRequires : sed
 BuildRequires : texinfo
+# Suppress generation of debuginfo
+%global debug_package %{nil}
 
 %description
 This is version 2.0 of Guile, Project GNU's extension language library.
@@ -34,771 +35,752 @@ as a library that can be linked into applications to give them their own
 extension language.  Guile supports other languages as well, giving
 users of Guile-based applications a choice of languages.
 
-%package bin
-Summary: bin components for the compat-guile-soname20 package.
-Group: Binaries
-Requires: compat-guile-soname20-data
-
-%description bin
-bin components for the compat-guile-soname20 package.
-
-
-%package data
-Summary: data components for the compat-guile-soname20 package.
-Group: Data
-
-%description data
-data components for the compat-guile-soname20 package.
-
-
-%package dev
-Summary: dev components for the compat-guile-soname20 package.
-Group: Development
-Requires: compat-guile-soname20-lib
-Requires: compat-guile-soname20-bin
-Requires: compat-guile-soname20-data
-Provides: compat-guile-soname20-devel
-
-%description dev
-dev components for the compat-guile-soname20 package.
-
-
-%package doc
-Summary: doc components for the compat-guile-soname20 package.
-Group: Documentation
-
-%description doc
-doc components for the compat-guile-soname20 package.
-
-
 %package lib
 Summary: lib components for the compat-guile-soname20 package.
 Group: Libraries
-Requires: compat-guile-soname20-data
+Requires: compat-guile-soname20-license = %{version}-%{release}
 
 %description lib
 lib components for the compat-guile-soname20 package.
+
+
+%package license
+Summary: license components for the compat-guile-soname20 package.
+Group: Default
+
+%description license
+license components for the compat-guile-soname20 package.
 
 
 %prep
 %setup -q -n guile-2.0.13
 
 %build
-export LANG=C
-export SOURCE_DATE_EPOCH=1489947769
+export http_proxy=http://127.0.0.1:9/
+export https_proxy=http://127.0.0.1:9/
+export no_proxy=localhost,127.0.0.1,0.0.0.0
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1568054255
+export GCC_IGNORE_WERROR=1
+export AR=gcc-ar
+export RANLIB=gcc-ranlib
+export NM=gcc-nm
+export CFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
+export FCFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
+export FFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=4 "
 %configure --disable-static
-make V=1  %{?_smp_mflags}
+make  %{?_smp_mflags}
 
 %install
-export SOURCE_DATE_EPOCH=1489947769
+export SOURCE_DATE_EPOCH=1568054255
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/package-licenses/compat-guile-soname20
+cp COPYING %{buildroot}/usr/share/package-licenses/compat-guile-soname20/COPYING
+cp COPYING.LESSER %{buildroot}/usr/share/package-licenses/compat-guile-soname20/COPYING.LESSER
+cp LICENSE %{buildroot}/usr/share/package-licenses/compat-guile-soname20/LICENSE
 %make_install
+## Remove excluded files
+rm -f %{buildroot}/usr/bin/guild
+rm -f %{buildroot}/usr/bin/guile
+rm -f %{buildroot}/usr/bin/guile-config
+rm -f %{buildroot}/usr/bin/guile-snarf
+rm -f %{buildroot}/usr/bin/guile-tools
+rm -f %{buildroot}/usr/include/guile/2.0/libguile.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/__scm.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/alist.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/arbiters.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/array-handle.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/array-map.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/arrays.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/async.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/backtrace.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/bdw-gc.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/bitvectors.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/boolean.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/bytevectors.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/chars.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/continuations.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/control.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/debug-malloc.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/debug.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/deprecated.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/deprecation.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/dynl.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/dynwind.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/eq.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/error.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/eval.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/evalext.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/expand.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/extensions.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/feature.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/filesys.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/finalizers.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/fluids.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/foreign.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/fports.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/frames.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/gc.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/gdb_interface.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/gdbint.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/generalized-arrays.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/generalized-vectors.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/gettext.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/goops.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/gsubr.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/guardians.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/hash.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/hashtab.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/hooks.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/i18n.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/init.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/inline.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/instructions.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/ioext.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/iselect.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/keywords.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/list.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/load.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/macros.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/mallocs.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/memoize.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/modules.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/net_db.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/null-threads.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/numbers.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/objcodes.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/objprop.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/options.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/pairs.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/poll.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/ports.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/posix.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/print.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/procprop.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/procs.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/programs.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/promises.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/pthread-threads.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/r6rs-ports.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/random.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/rdelim.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/read.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/regex-posix.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/root.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/rw.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/scmconfig.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/scmsigs.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/script.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/simpos.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/smob.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/snarf.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/socket.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/sort.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/srcprop.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/srfi-1.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/srfi-13.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/srfi-14.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/srfi-4.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/srfi-60.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/stackchk.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/stacks.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/stime.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/strings.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/strorder.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/strports.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/struct.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/symbols.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/tags.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/threads.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/throw.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/trees.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/unicode.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/uniform.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/validate.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/values.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/variable.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/vectors.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/version.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/vm-engine.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/vm-expand.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/vm.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/vports.h
+rm -f %{buildroot}/usr/include/guile/2.0/libguile/weaks.h
+rm -f %{buildroot}/usr/include/guile/2.0/readline.h
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/and-let-star.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/binary-ports.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/boot-9.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/buffered-input.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/calling.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/channel.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/command-line.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/common-list.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/control.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/curried-definitions.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/debug.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/deprecated.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/documentation.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/eval-string.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/eval.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/expect.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/format.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/ftw.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/futures.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/gap-buffer.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/getopt-long.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/hash-table.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/hcons.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/history.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/i18n.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/iconv.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/lineio.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/list.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/local-eval.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/ls.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/mapping.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/match.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/networking.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/null.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/occam-channel.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/optargs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/poe.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/poll.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/popen.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/posix.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/pretty-print.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/psyntax-pp.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/q.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/r4rs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/r5rs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/rdelim.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/readline.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/receive.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/regex.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/runq.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/rw.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/safe-r5rs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/safe.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/save-stack.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/scm-style-repl.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/serialize.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/session.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/slib.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/stack-catch.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/streams.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/string-fun.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/syncase.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/threads.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/time.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/top-repl.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/unicode.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/vlist.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/ice-9/weak-vector.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/assembly.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/assembly/compile-bytecode.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/assembly/decompile-bytecode.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/assembly/disassemble.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/assembly/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/brainfuck/compile-scheme.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/brainfuck/compile-tree-il.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/brainfuck/parse.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/brainfuck/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/bytecode/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/array.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/base.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/compile-tree-il.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/function.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/impl.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/parse.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/ecmascript/tokenize.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/bindings.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/compile-tree-il.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/lexer.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/parser.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/runtime.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/runtime/function-slot.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/runtime/macros.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/runtime/subrs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/runtime/value-slot.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/elisp/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/glil.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/glil/compile-assembly.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/glil/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/objcode/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/scheme/compile-tree-il.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/scheme/decompile-tree-il.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/scheme/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/analyze.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/canonicalize.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/compile-glil.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/cse.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/debug.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/effects.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/fix-letrec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/inline.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/optimize.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/peval.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/primitives.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/tree-il/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/language/value/spec.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/accessors.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/active-slot.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/compile.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/composite-slot.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/describe.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/dispatch.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/internal.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/save.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/simple.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/stklos.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/oop/goops/util.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/arithmetic/bitwise.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/arithmetic/fixnums.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/arithmetic/flonums.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/base.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/bytevectors.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/conditions.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/control.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/enums.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/eval.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/exceptions.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/files.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/hashtables.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/io/ports.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/io/simple.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/lists.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/mutable-pairs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/mutable-strings.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/programs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/r5rs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/records/inspection.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/records/procedural.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/records/syntactic.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/sorting.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/syntax-case.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/rnrs/unicode.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/api-diff.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/autofrisk.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/compile.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/disassemble.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/display-commentary.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/doc-snarf.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/frisk.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/generate-autoload.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/help.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/lint.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/list.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/punify.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/read-rfc822.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/read-scheme-source.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/read-text-outline.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/scan-api.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/snarf-check-and-output-texi.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/snarf-guile-m4-docs.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/summarize-guile-TODO.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/scripts/use2dot.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-1.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-10.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-11.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-111.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-13.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-14.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-16.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-17.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-18.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-19.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-2.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-26.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-27.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-28.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-31.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-34.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-35.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-37.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-38.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-39.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-4.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-4/gnu.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-41.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-42.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-43.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-45.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-6.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-60.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-64.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-67.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-69.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-8.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-88.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-9.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-9/gnu.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/srfi/srfi-98.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/statprof.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/apply-templates.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/fold.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/match.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/simple.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/ssax.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/ssax/input-parse.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/transform.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/sxml/xpath.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/ck.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/compile.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/lalr.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/language.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/message.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/pmatch.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/syntax.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/target.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/base/types.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/foreign.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/command.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/common.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/coop-server.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/debug.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/error-handling.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/repl.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/repl/server.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/coverage.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/frame.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/inspect.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/instruction.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/objcode.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/program.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/trace.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/trap-state.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/traps.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/vm/vm.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/system/xref.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/docbook.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/html.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/indexing.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/plain-text.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/reflection.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/serialize.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/texinfo/string-utils.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/client.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/http.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/request.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/response.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/server.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/server/http.go
+rm -f %{buildroot}/usr/lib64/guile/2.0/ccache/web/uri.go
+rm -f %{buildroot}/usr/lib64/libguile-2.0.so
+rm -f %{buildroot}/usr/lib64/libguilereadline-v-18.so
+rm -f %{buildroot}/usr/lib64/pkgconfig/guile-2.0.pc
+rm -f %{buildroot}/usr/share/aclocal/guile.m4
+rm -f %{buildroot}/usr/share/guile/2.0/guile-procedures.txt
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/and-let-star.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/binary-ports.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/boot-9.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/buffered-input.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/calling.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/channel.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/command-line.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/common-list.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/control.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/curried-definitions.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/debug.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/deprecated.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/documentation.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/eval-string.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/eval.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/expect.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/format.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/ftw.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/futures.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/gap-buffer.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/getopt-long.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/hash-table.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/hcons.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/history.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/i18n.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/iconv.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/lineio.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/list.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/local-eval.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/ls.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/mapping.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/match.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/match.upstream.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/networking.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/null.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/occam-channel.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/optargs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/poe.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/poll.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/popen.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/posix.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/pretty-print.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/psyntax-pp.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/psyntax.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/q.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/quasisyntax.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/r4rs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/r5rs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/r6rs-libraries.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/rdelim.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/readline.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/receive.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/regex.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/runq.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/rw.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/safe-r5rs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/safe.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/save-stack.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/scm-style-repl.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/serialize.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/session.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/slib.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/stack-catch.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/streams.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/string-fun.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/syncase.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/threads.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/time.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/top-repl.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/unicode.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/vlist.scm
+rm -f %{buildroot}/usr/share/guile/2.0/ice-9/weak-vector.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/assembly.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/assembly/compile-bytecode.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/assembly/decompile-bytecode.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/assembly/disassemble.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/assembly/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/brainfuck/compile-scheme.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/brainfuck/compile-tree-il.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/brainfuck/parse.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/brainfuck/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/bytecode/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/array.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/base.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/compile-tree-il.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/function.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/impl.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/parse.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/ecmascript/tokenize.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/bindings.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/compile-tree-il.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/lexer.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/parser.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/runtime.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/runtime/function-slot.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/runtime/macros.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/runtime/subrs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/runtime/value-slot.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/elisp/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/glil.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/glil/compile-assembly.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/glil/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/objcode/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/scheme/compile-tree-il.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/scheme/decompile-tree-il.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/scheme/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/analyze.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/canonicalize.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/compile-glil.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/cse.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/debug.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/effects.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/fix-letrec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/inline.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/optimize.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/peval.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/primitives.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/tree-il/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/language/value/spec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/accessors.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/active-slot.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/compile.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/composite-slot.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/describe.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/dispatch.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/internal.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/save.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/simple.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/stklos.scm
+rm -f %{buildroot}/usr/share/guile/2.0/oop/goops/util.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/arithmetic/bitwise.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/arithmetic/fixnums.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/arithmetic/flonums.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/base.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/bytevectors.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/conditions.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/control.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/enums.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/eval.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/exceptions.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/files.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/hashtables.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/io/ports.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/io/simple.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/lists.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/mutable-pairs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/mutable-strings.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/programs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/r5rs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/records/inspection.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/records/procedural.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/records/syntactic.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/sorting.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/syntax-case.scm
+rm -f %{buildroot}/usr/share/guile/2.0/rnrs/unicode.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/api-diff.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/autofrisk.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/compile.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/disassemble.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/display-commentary.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/doc-snarf.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/frisk.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/generate-autoload.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/help.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/lint.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/list.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/punify.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/read-rfc822.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/read-scheme-source.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/read-text-outline.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/scan-api.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/snarf-check-and-output-texi.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/snarf-guile-m4-docs.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/summarize-guile-TODO.scm
+rm -f %{buildroot}/usr/share/guile/2.0/scripts/use2dot.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-1.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-10.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-11.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-111.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-13.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-14.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-16.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-17.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-18.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-19.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-2.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-26.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-27.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-28.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-31.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-34.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-35.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-37.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-38.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-39.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-4.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-4/gnu.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-41.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-42.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-42/ec.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-43.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-45.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-6.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-60.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-64.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-64/testing.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-67.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-67/compare.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-69.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-8.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-88.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-9.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-9/gnu.scm
+rm -f %{buildroot}/usr/share/guile/2.0/srfi/srfi-98.scm
+rm -f %{buildroot}/usr/share/guile/2.0/statprof.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/apply-templates.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/fold.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/match.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/simple.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/ssax.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/ssax/input-parse.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/sxml-match.ss
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/transform.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/upstream/SSAX.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/upstream/SXML-tree-trans.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/upstream/SXPath-old.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/upstream/assert.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/upstream/input-parse.scm
+rm -f %{buildroot}/usr/share/guile/2.0/sxml/xpath.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/ck.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/compile.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/lalr.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/lalr.upstream.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/language.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/message.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/pmatch.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/syntax.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/target.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/base/types.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/foreign.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/command.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/common.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/coop-server.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/debug.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/describe.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/error-handling.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/repl.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/repl/server.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/coverage.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/frame.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/inspect.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/instruction.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/objcode.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/program.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/trace.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/trap-state.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/traps.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/vm/vm.scm
+rm -f %{buildroot}/usr/share/guile/2.0/system/xref.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/docbook.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/html.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/indexing.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/plain-text.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/reflection.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/serialize.scm
+rm -f %{buildroot}/usr/share/guile/2.0/texinfo/string-utils.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/client.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/http.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/request.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/response.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/server.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/server/http.scm
+rm -f %{buildroot}/usr/share/guile/2.0/web/uri.scm
+rm -f %{buildroot}/usr/share/info/guile.info
+rm -f %{buildroot}/usr/share/info/guile.info-1
+rm -f %{buildroot}/usr/share/info/guile.info-10
+rm -f %{buildroot}/usr/share/info/guile.info-2
+rm -f %{buildroot}/usr/share/info/guile.info-3
+rm -f %{buildroot}/usr/share/info/guile.info-4
+rm -f %{buildroot}/usr/share/info/guile.info-5
+rm -f %{buildroot}/usr/share/info/guile.info-6
+rm -f %{buildroot}/usr/share/info/guile.info-7
+rm -f %{buildroot}/usr/share/info/guile.info-8
+rm -f %{buildroot}/usr/share/info/guile.info-9
+rm -f %{buildroot}/usr/share/info/r5rs.info
+rm -f %{buildroot}/usr/share/man/man1/guile.1
 
 %files
 %defattr(-,root,root,-)
-/usr/lib64/guile/2.0/ccache/ice-9/and-let-star.go
-/usr/lib64/guile/2.0/ccache/ice-9/binary-ports.go
-/usr/lib64/guile/2.0/ccache/ice-9/boot-9.go
-/usr/lib64/guile/2.0/ccache/ice-9/buffered-input.go
-/usr/lib64/guile/2.0/ccache/ice-9/calling.go
-/usr/lib64/guile/2.0/ccache/ice-9/channel.go
-/usr/lib64/guile/2.0/ccache/ice-9/command-line.go
-/usr/lib64/guile/2.0/ccache/ice-9/common-list.go
-/usr/lib64/guile/2.0/ccache/ice-9/control.go
-/usr/lib64/guile/2.0/ccache/ice-9/curried-definitions.go
-/usr/lib64/guile/2.0/ccache/ice-9/debug.go
-/usr/lib64/guile/2.0/ccache/ice-9/deprecated.go
-/usr/lib64/guile/2.0/ccache/ice-9/documentation.go
-/usr/lib64/guile/2.0/ccache/ice-9/eval-string.go
-/usr/lib64/guile/2.0/ccache/ice-9/eval.go
-/usr/lib64/guile/2.0/ccache/ice-9/expect.go
-/usr/lib64/guile/2.0/ccache/ice-9/format.go
-/usr/lib64/guile/2.0/ccache/ice-9/ftw.go
-/usr/lib64/guile/2.0/ccache/ice-9/futures.go
-/usr/lib64/guile/2.0/ccache/ice-9/gap-buffer.go
-/usr/lib64/guile/2.0/ccache/ice-9/getopt-long.go
-/usr/lib64/guile/2.0/ccache/ice-9/hash-table.go
-/usr/lib64/guile/2.0/ccache/ice-9/hcons.go
-/usr/lib64/guile/2.0/ccache/ice-9/history.go
-/usr/lib64/guile/2.0/ccache/ice-9/i18n.go
-/usr/lib64/guile/2.0/ccache/ice-9/iconv.go
-/usr/lib64/guile/2.0/ccache/ice-9/lineio.go
-/usr/lib64/guile/2.0/ccache/ice-9/list.go
-/usr/lib64/guile/2.0/ccache/ice-9/local-eval.go
-/usr/lib64/guile/2.0/ccache/ice-9/ls.go
-/usr/lib64/guile/2.0/ccache/ice-9/mapping.go
-/usr/lib64/guile/2.0/ccache/ice-9/match.go
-/usr/lib64/guile/2.0/ccache/ice-9/networking.go
-/usr/lib64/guile/2.0/ccache/ice-9/null.go
-/usr/lib64/guile/2.0/ccache/ice-9/occam-channel.go
-/usr/lib64/guile/2.0/ccache/ice-9/optargs.go
-/usr/lib64/guile/2.0/ccache/ice-9/poe.go
-/usr/lib64/guile/2.0/ccache/ice-9/poll.go
-/usr/lib64/guile/2.0/ccache/ice-9/popen.go
-/usr/lib64/guile/2.0/ccache/ice-9/posix.go
-/usr/lib64/guile/2.0/ccache/ice-9/pretty-print.go
-/usr/lib64/guile/2.0/ccache/ice-9/psyntax-pp.go
-/usr/lib64/guile/2.0/ccache/ice-9/q.go
-/usr/lib64/guile/2.0/ccache/ice-9/r4rs.go
-/usr/lib64/guile/2.0/ccache/ice-9/r5rs.go
-/usr/lib64/guile/2.0/ccache/ice-9/rdelim.go
-/usr/lib64/guile/2.0/ccache/ice-9/readline.go
-/usr/lib64/guile/2.0/ccache/ice-9/receive.go
-/usr/lib64/guile/2.0/ccache/ice-9/regex.go
-/usr/lib64/guile/2.0/ccache/ice-9/runq.go
-/usr/lib64/guile/2.0/ccache/ice-9/rw.go
-/usr/lib64/guile/2.0/ccache/ice-9/safe-r5rs.go
-/usr/lib64/guile/2.0/ccache/ice-9/safe.go
-/usr/lib64/guile/2.0/ccache/ice-9/save-stack.go
-/usr/lib64/guile/2.0/ccache/ice-9/scm-style-repl.go
-/usr/lib64/guile/2.0/ccache/ice-9/serialize.go
-/usr/lib64/guile/2.0/ccache/ice-9/session.go
-/usr/lib64/guile/2.0/ccache/ice-9/slib.go
-/usr/lib64/guile/2.0/ccache/ice-9/stack-catch.go
-/usr/lib64/guile/2.0/ccache/ice-9/streams.go
-/usr/lib64/guile/2.0/ccache/ice-9/string-fun.go
-/usr/lib64/guile/2.0/ccache/ice-9/syncase.go
-/usr/lib64/guile/2.0/ccache/ice-9/threads.go
-/usr/lib64/guile/2.0/ccache/ice-9/time.go
-/usr/lib64/guile/2.0/ccache/ice-9/top-repl.go
-/usr/lib64/guile/2.0/ccache/ice-9/unicode.go
-/usr/lib64/guile/2.0/ccache/ice-9/vlist.go
-/usr/lib64/guile/2.0/ccache/ice-9/weak-vector.go
-/usr/lib64/guile/2.0/ccache/language/assembly.go
-/usr/lib64/guile/2.0/ccache/language/assembly/compile-bytecode.go
-/usr/lib64/guile/2.0/ccache/language/assembly/decompile-bytecode.go
-/usr/lib64/guile/2.0/ccache/language/assembly/disassemble.go
-/usr/lib64/guile/2.0/ccache/language/assembly/spec.go
-/usr/lib64/guile/2.0/ccache/language/brainfuck/compile-scheme.go
-/usr/lib64/guile/2.0/ccache/language/brainfuck/compile-tree-il.go
-/usr/lib64/guile/2.0/ccache/language/brainfuck/parse.go
-/usr/lib64/guile/2.0/ccache/language/brainfuck/spec.go
-/usr/lib64/guile/2.0/ccache/language/bytecode/spec.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/array.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/base.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/compile-tree-il.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/function.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/impl.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/parse.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/spec.go
-/usr/lib64/guile/2.0/ccache/language/ecmascript/tokenize.go
-/usr/lib64/guile/2.0/ccache/language/elisp/bindings.go
-/usr/lib64/guile/2.0/ccache/language/elisp/compile-tree-il.go
-/usr/lib64/guile/2.0/ccache/language/elisp/lexer.go
-/usr/lib64/guile/2.0/ccache/language/elisp/parser.go
-/usr/lib64/guile/2.0/ccache/language/elisp/runtime.go
-/usr/lib64/guile/2.0/ccache/language/elisp/runtime/function-slot.go
-/usr/lib64/guile/2.0/ccache/language/elisp/runtime/macros.go
-/usr/lib64/guile/2.0/ccache/language/elisp/runtime/subrs.go
-/usr/lib64/guile/2.0/ccache/language/elisp/runtime/value-slot.go
-/usr/lib64/guile/2.0/ccache/language/elisp/spec.go
-/usr/lib64/guile/2.0/ccache/language/glil.go
-/usr/lib64/guile/2.0/ccache/language/glil/compile-assembly.go
-/usr/lib64/guile/2.0/ccache/language/glil/spec.go
-/usr/lib64/guile/2.0/ccache/language/objcode/spec.go
-/usr/lib64/guile/2.0/ccache/language/scheme/compile-tree-il.go
-/usr/lib64/guile/2.0/ccache/language/scheme/decompile-tree-il.go
-/usr/lib64/guile/2.0/ccache/language/scheme/spec.go
-/usr/lib64/guile/2.0/ccache/language/tree-il.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/analyze.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/canonicalize.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/compile-glil.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/cse.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/debug.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/effects.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/fix-letrec.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/inline.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/optimize.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/peval.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/primitives.go
-/usr/lib64/guile/2.0/ccache/language/tree-il/spec.go
-/usr/lib64/guile/2.0/ccache/language/value/spec.go
-/usr/lib64/guile/2.0/ccache/oop/goops.go
-/usr/lib64/guile/2.0/ccache/oop/goops/accessors.go
-/usr/lib64/guile/2.0/ccache/oop/goops/active-slot.go
-/usr/lib64/guile/2.0/ccache/oop/goops/compile.go
-/usr/lib64/guile/2.0/ccache/oop/goops/composite-slot.go
-/usr/lib64/guile/2.0/ccache/oop/goops/describe.go
-/usr/lib64/guile/2.0/ccache/oop/goops/dispatch.go
-/usr/lib64/guile/2.0/ccache/oop/goops/internal.go
-/usr/lib64/guile/2.0/ccache/oop/goops/save.go
-/usr/lib64/guile/2.0/ccache/oop/goops/simple.go
-/usr/lib64/guile/2.0/ccache/oop/goops/stklos.go
-/usr/lib64/guile/2.0/ccache/oop/goops/util.go
-/usr/lib64/guile/2.0/ccache/rnrs.go
-/usr/lib64/guile/2.0/ccache/rnrs/arithmetic/bitwise.go
-/usr/lib64/guile/2.0/ccache/rnrs/arithmetic/fixnums.go
-/usr/lib64/guile/2.0/ccache/rnrs/arithmetic/flonums.go
-/usr/lib64/guile/2.0/ccache/rnrs/base.go
-/usr/lib64/guile/2.0/ccache/rnrs/bytevectors.go
-/usr/lib64/guile/2.0/ccache/rnrs/conditions.go
-/usr/lib64/guile/2.0/ccache/rnrs/control.go
-/usr/lib64/guile/2.0/ccache/rnrs/enums.go
-/usr/lib64/guile/2.0/ccache/rnrs/eval.go
-/usr/lib64/guile/2.0/ccache/rnrs/exceptions.go
-/usr/lib64/guile/2.0/ccache/rnrs/files.go
-/usr/lib64/guile/2.0/ccache/rnrs/hashtables.go
-/usr/lib64/guile/2.0/ccache/rnrs/io/ports.go
-/usr/lib64/guile/2.0/ccache/rnrs/io/simple.go
-/usr/lib64/guile/2.0/ccache/rnrs/lists.go
-/usr/lib64/guile/2.0/ccache/rnrs/mutable-pairs.go
-/usr/lib64/guile/2.0/ccache/rnrs/mutable-strings.go
-/usr/lib64/guile/2.0/ccache/rnrs/programs.go
-/usr/lib64/guile/2.0/ccache/rnrs/r5rs.go
-/usr/lib64/guile/2.0/ccache/rnrs/records/inspection.go
-/usr/lib64/guile/2.0/ccache/rnrs/records/procedural.go
-/usr/lib64/guile/2.0/ccache/rnrs/records/syntactic.go
-/usr/lib64/guile/2.0/ccache/rnrs/sorting.go
-/usr/lib64/guile/2.0/ccache/rnrs/syntax-case.go
-/usr/lib64/guile/2.0/ccache/rnrs/unicode.go
-/usr/lib64/guile/2.0/ccache/scripts/api-diff.go
-/usr/lib64/guile/2.0/ccache/scripts/autofrisk.go
-/usr/lib64/guile/2.0/ccache/scripts/compile.go
-/usr/lib64/guile/2.0/ccache/scripts/disassemble.go
-/usr/lib64/guile/2.0/ccache/scripts/display-commentary.go
-/usr/lib64/guile/2.0/ccache/scripts/doc-snarf.go
-/usr/lib64/guile/2.0/ccache/scripts/frisk.go
-/usr/lib64/guile/2.0/ccache/scripts/generate-autoload.go
-/usr/lib64/guile/2.0/ccache/scripts/help.go
-/usr/lib64/guile/2.0/ccache/scripts/lint.go
-/usr/lib64/guile/2.0/ccache/scripts/list.go
-/usr/lib64/guile/2.0/ccache/scripts/punify.go
-/usr/lib64/guile/2.0/ccache/scripts/read-rfc822.go
-/usr/lib64/guile/2.0/ccache/scripts/read-scheme-source.go
-/usr/lib64/guile/2.0/ccache/scripts/read-text-outline.go
-/usr/lib64/guile/2.0/ccache/scripts/scan-api.go
-/usr/lib64/guile/2.0/ccache/scripts/snarf-check-and-output-texi.go
-/usr/lib64/guile/2.0/ccache/scripts/snarf-guile-m4-docs.go
-/usr/lib64/guile/2.0/ccache/scripts/summarize-guile-TODO.go
-/usr/lib64/guile/2.0/ccache/scripts/use2dot.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-1.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-10.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-11.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-111.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-13.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-14.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-16.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-17.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-18.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-19.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-2.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-26.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-27.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-28.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-31.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-34.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-35.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-37.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-38.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-39.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-4.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-4/gnu.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-41.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-42.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-43.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-45.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-6.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-60.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-64.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-67.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-69.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-8.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-88.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-9.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-9/gnu.go
-/usr/lib64/guile/2.0/ccache/srfi/srfi-98.go
-/usr/lib64/guile/2.0/ccache/statprof.go
-/usr/lib64/guile/2.0/ccache/sxml/apply-templates.go
-/usr/lib64/guile/2.0/ccache/sxml/fold.go
-/usr/lib64/guile/2.0/ccache/sxml/match.go
-/usr/lib64/guile/2.0/ccache/sxml/simple.go
-/usr/lib64/guile/2.0/ccache/sxml/ssax.go
-/usr/lib64/guile/2.0/ccache/sxml/ssax/input-parse.go
-/usr/lib64/guile/2.0/ccache/sxml/transform.go
-/usr/lib64/guile/2.0/ccache/sxml/xpath.go
-/usr/lib64/guile/2.0/ccache/system/base/ck.go
-/usr/lib64/guile/2.0/ccache/system/base/compile.go
-/usr/lib64/guile/2.0/ccache/system/base/lalr.go
-/usr/lib64/guile/2.0/ccache/system/base/language.go
-/usr/lib64/guile/2.0/ccache/system/base/message.go
-/usr/lib64/guile/2.0/ccache/system/base/pmatch.go
-/usr/lib64/guile/2.0/ccache/system/base/syntax.go
-/usr/lib64/guile/2.0/ccache/system/base/target.go
-/usr/lib64/guile/2.0/ccache/system/base/types.go
-/usr/lib64/guile/2.0/ccache/system/foreign.go
-/usr/lib64/guile/2.0/ccache/system/repl/command.go
-/usr/lib64/guile/2.0/ccache/system/repl/common.go
-/usr/lib64/guile/2.0/ccache/system/repl/coop-server.go
-/usr/lib64/guile/2.0/ccache/system/repl/debug.go
-/usr/lib64/guile/2.0/ccache/system/repl/error-handling.go
-/usr/lib64/guile/2.0/ccache/system/repl/repl.go
-/usr/lib64/guile/2.0/ccache/system/repl/server.go
-/usr/lib64/guile/2.0/ccache/system/vm/coverage.go
-/usr/lib64/guile/2.0/ccache/system/vm/frame.go
-/usr/lib64/guile/2.0/ccache/system/vm/inspect.go
-/usr/lib64/guile/2.0/ccache/system/vm/instruction.go
-/usr/lib64/guile/2.0/ccache/system/vm/objcode.go
-/usr/lib64/guile/2.0/ccache/system/vm/program.go
-/usr/lib64/guile/2.0/ccache/system/vm/trace.go
-/usr/lib64/guile/2.0/ccache/system/vm/trap-state.go
-/usr/lib64/guile/2.0/ccache/system/vm/traps.go
-/usr/lib64/guile/2.0/ccache/system/vm/vm.go
-/usr/lib64/guile/2.0/ccache/system/xref.go
-/usr/lib64/guile/2.0/ccache/texinfo.go
-/usr/lib64/guile/2.0/ccache/texinfo/docbook.go
-/usr/lib64/guile/2.0/ccache/texinfo/html.go
-/usr/lib64/guile/2.0/ccache/texinfo/indexing.go
-/usr/lib64/guile/2.0/ccache/texinfo/plain-text.go
-/usr/lib64/guile/2.0/ccache/texinfo/reflection.go
-/usr/lib64/guile/2.0/ccache/texinfo/serialize.go
-/usr/lib64/guile/2.0/ccache/texinfo/string-utils.go
-/usr/lib64/guile/2.0/ccache/web/client.go
-/usr/lib64/guile/2.0/ccache/web/http.go
-/usr/lib64/guile/2.0/ccache/web/request.go
-/usr/lib64/guile/2.0/ccache/web/response.go
-/usr/lib64/guile/2.0/ccache/web/server.go
-/usr/lib64/guile/2.0/ccache/web/server/http.go
-/usr/lib64/guile/2.0/ccache/web/uri.go
-
-%files bin
-%defattr(-,root,root,-)
-%exclude /usr/bin/guild
-%exclude /usr/bin/guile
-%exclude /usr/bin/guile-config
-%exclude /usr/bin/guile-snarf
-%exclude /usr/bin/guile-tools
-
-%files data
-%defattr(-,root,root,-)
-/usr/share/guile/2.0/guile-procedures.txt
-/usr/share/guile/2.0/ice-9/and-let-star.scm
-/usr/share/guile/2.0/ice-9/binary-ports.scm
-/usr/share/guile/2.0/ice-9/boot-9.scm
-/usr/share/guile/2.0/ice-9/buffered-input.scm
-/usr/share/guile/2.0/ice-9/calling.scm
-/usr/share/guile/2.0/ice-9/channel.scm
-/usr/share/guile/2.0/ice-9/command-line.scm
-/usr/share/guile/2.0/ice-9/common-list.scm
-/usr/share/guile/2.0/ice-9/control.scm
-/usr/share/guile/2.0/ice-9/curried-definitions.scm
-/usr/share/guile/2.0/ice-9/debug.scm
-/usr/share/guile/2.0/ice-9/deprecated.scm
-/usr/share/guile/2.0/ice-9/documentation.scm
-/usr/share/guile/2.0/ice-9/eval-string.scm
-/usr/share/guile/2.0/ice-9/eval.scm
-/usr/share/guile/2.0/ice-9/expect.scm
-/usr/share/guile/2.0/ice-9/format.scm
-/usr/share/guile/2.0/ice-9/ftw.scm
-/usr/share/guile/2.0/ice-9/futures.scm
-/usr/share/guile/2.0/ice-9/gap-buffer.scm
-/usr/share/guile/2.0/ice-9/getopt-long.scm
-/usr/share/guile/2.0/ice-9/hash-table.scm
-/usr/share/guile/2.0/ice-9/hcons.scm
-/usr/share/guile/2.0/ice-9/history.scm
-/usr/share/guile/2.0/ice-9/i18n.scm
-/usr/share/guile/2.0/ice-9/iconv.scm
-/usr/share/guile/2.0/ice-9/lineio.scm
-/usr/share/guile/2.0/ice-9/list.scm
-/usr/share/guile/2.0/ice-9/local-eval.scm
-/usr/share/guile/2.0/ice-9/ls.scm
-/usr/share/guile/2.0/ice-9/mapping.scm
-/usr/share/guile/2.0/ice-9/match.scm
-/usr/share/guile/2.0/ice-9/match.upstream.scm
-/usr/share/guile/2.0/ice-9/networking.scm
-/usr/share/guile/2.0/ice-9/null.scm
-/usr/share/guile/2.0/ice-9/occam-channel.scm
-/usr/share/guile/2.0/ice-9/optargs.scm
-/usr/share/guile/2.0/ice-9/poe.scm
-/usr/share/guile/2.0/ice-9/poll.scm
-/usr/share/guile/2.0/ice-9/popen.scm
-/usr/share/guile/2.0/ice-9/posix.scm
-/usr/share/guile/2.0/ice-9/pretty-print.scm
-/usr/share/guile/2.0/ice-9/psyntax-pp.scm
-/usr/share/guile/2.0/ice-9/psyntax.scm
-/usr/share/guile/2.0/ice-9/q.scm
-/usr/share/guile/2.0/ice-9/quasisyntax.scm
-/usr/share/guile/2.0/ice-9/r4rs.scm
-/usr/share/guile/2.0/ice-9/r5rs.scm
-/usr/share/guile/2.0/ice-9/r6rs-libraries.scm
-/usr/share/guile/2.0/ice-9/rdelim.scm
-/usr/share/guile/2.0/ice-9/readline.scm
-/usr/share/guile/2.0/ice-9/receive.scm
-/usr/share/guile/2.0/ice-9/regex.scm
-/usr/share/guile/2.0/ice-9/runq.scm
-/usr/share/guile/2.0/ice-9/rw.scm
-/usr/share/guile/2.0/ice-9/safe-r5rs.scm
-/usr/share/guile/2.0/ice-9/safe.scm
-/usr/share/guile/2.0/ice-9/save-stack.scm
-/usr/share/guile/2.0/ice-9/scm-style-repl.scm
-/usr/share/guile/2.0/ice-9/serialize.scm
-/usr/share/guile/2.0/ice-9/session.scm
-/usr/share/guile/2.0/ice-9/slib.scm
-/usr/share/guile/2.0/ice-9/stack-catch.scm
-/usr/share/guile/2.0/ice-9/streams.scm
-/usr/share/guile/2.0/ice-9/string-fun.scm
-/usr/share/guile/2.0/ice-9/syncase.scm
-/usr/share/guile/2.0/ice-9/threads.scm
-/usr/share/guile/2.0/ice-9/time.scm
-/usr/share/guile/2.0/ice-9/top-repl.scm
-/usr/share/guile/2.0/ice-9/unicode.scm
-/usr/share/guile/2.0/ice-9/vlist.scm
-/usr/share/guile/2.0/ice-9/weak-vector.scm
-/usr/share/guile/2.0/language/assembly.scm
-/usr/share/guile/2.0/language/assembly/compile-bytecode.scm
-/usr/share/guile/2.0/language/assembly/decompile-bytecode.scm
-/usr/share/guile/2.0/language/assembly/disassemble.scm
-/usr/share/guile/2.0/language/assembly/spec.scm
-/usr/share/guile/2.0/language/brainfuck/compile-scheme.scm
-/usr/share/guile/2.0/language/brainfuck/compile-tree-il.scm
-/usr/share/guile/2.0/language/brainfuck/parse.scm
-/usr/share/guile/2.0/language/brainfuck/spec.scm
-/usr/share/guile/2.0/language/bytecode/spec.scm
-/usr/share/guile/2.0/language/ecmascript/array.scm
-/usr/share/guile/2.0/language/ecmascript/base.scm
-/usr/share/guile/2.0/language/ecmascript/compile-tree-il.scm
-/usr/share/guile/2.0/language/ecmascript/function.scm
-/usr/share/guile/2.0/language/ecmascript/impl.scm
-/usr/share/guile/2.0/language/ecmascript/parse.scm
-/usr/share/guile/2.0/language/ecmascript/spec.scm
-/usr/share/guile/2.0/language/ecmascript/tokenize.scm
-/usr/share/guile/2.0/language/elisp/bindings.scm
-/usr/share/guile/2.0/language/elisp/compile-tree-il.scm
-/usr/share/guile/2.0/language/elisp/lexer.scm
-/usr/share/guile/2.0/language/elisp/parser.scm
-/usr/share/guile/2.0/language/elisp/runtime.scm
-/usr/share/guile/2.0/language/elisp/runtime/function-slot.scm
-/usr/share/guile/2.0/language/elisp/runtime/macros.scm
-/usr/share/guile/2.0/language/elisp/runtime/subrs.scm
-/usr/share/guile/2.0/language/elisp/runtime/value-slot.scm
-/usr/share/guile/2.0/language/elisp/spec.scm
-/usr/share/guile/2.0/language/glil.scm
-/usr/share/guile/2.0/language/glil/compile-assembly.scm
-/usr/share/guile/2.0/language/glil/spec.scm
-/usr/share/guile/2.0/language/objcode/spec.scm
-/usr/share/guile/2.0/language/scheme/compile-tree-il.scm
-/usr/share/guile/2.0/language/scheme/decompile-tree-il.scm
-/usr/share/guile/2.0/language/scheme/spec.scm
-/usr/share/guile/2.0/language/tree-il.scm
-/usr/share/guile/2.0/language/tree-il/analyze.scm
-/usr/share/guile/2.0/language/tree-il/canonicalize.scm
-/usr/share/guile/2.0/language/tree-il/compile-glil.scm
-/usr/share/guile/2.0/language/tree-il/cse.scm
-/usr/share/guile/2.0/language/tree-il/debug.scm
-/usr/share/guile/2.0/language/tree-il/effects.scm
-/usr/share/guile/2.0/language/tree-il/fix-letrec.scm
-/usr/share/guile/2.0/language/tree-il/inline.scm
-/usr/share/guile/2.0/language/tree-il/optimize.scm
-/usr/share/guile/2.0/language/tree-il/peval.scm
-/usr/share/guile/2.0/language/tree-il/primitives.scm
-/usr/share/guile/2.0/language/tree-il/spec.scm
-/usr/share/guile/2.0/language/value/spec.scm
-/usr/share/guile/2.0/oop/goops.scm
-/usr/share/guile/2.0/oop/goops/accessors.scm
-/usr/share/guile/2.0/oop/goops/active-slot.scm
-/usr/share/guile/2.0/oop/goops/compile.scm
-/usr/share/guile/2.0/oop/goops/composite-slot.scm
-/usr/share/guile/2.0/oop/goops/describe.scm
-/usr/share/guile/2.0/oop/goops/dispatch.scm
-/usr/share/guile/2.0/oop/goops/internal.scm
-/usr/share/guile/2.0/oop/goops/save.scm
-/usr/share/guile/2.0/oop/goops/simple.scm
-/usr/share/guile/2.0/oop/goops/stklos.scm
-/usr/share/guile/2.0/oop/goops/util.scm
-/usr/share/guile/2.0/rnrs.scm
-/usr/share/guile/2.0/rnrs/arithmetic/bitwise.scm
-/usr/share/guile/2.0/rnrs/arithmetic/fixnums.scm
-/usr/share/guile/2.0/rnrs/arithmetic/flonums.scm
-/usr/share/guile/2.0/rnrs/base.scm
-/usr/share/guile/2.0/rnrs/bytevectors.scm
-/usr/share/guile/2.0/rnrs/conditions.scm
-/usr/share/guile/2.0/rnrs/control.scm
-/usr/share/guile/2.0/rnrs/enums.scm
-/usr/share/guile/2.0/rnrs/eval.scm
-/usr/share/guile/2.0/rnrs/exceptions.scm
-/usr/share/guile/2.0/rnrs/files.scm
-/usr/share/guile/2.0/rnrs/hashtables.scm
-/usr/share/guile/2.0/rnrs/io/ports.scm
-/usr/share/guile/2.0/rnrs/io/simple.scm
-/usr/share/guile/2.0/rnrs/lists.scm
-/usr/share/guile/2.0/rnrs/mutable-pairs.scm
-/usr/share/guile/2.0/rnrs/mutable-strings.scm
-/usr/share/guile/2.0/rnrs/programs.scm
-/usr/share/guile/2.0/rnrs/r5rs.scm
-/usr/share/guile/2.0/rnrs/records/inspection.scm
-/usr/share/guile/2.0/rnrs/records/procedural.scm
-/usr/share/guile/2.0/rnrs/records/syntactic.scm
-/usr/share/guile/2.0/rnrs/sorting.scm
-/usr/share/guile/2.0/rnrs/syntax-case.scm
-/usr/share/guile/2.0/rnrs/unicode.scm
-/usr/share/guile/2.0/scripts/api-diff.scm
-/usr/share/guile/2.0/scripts/autofrisk.scm
-/usr/share/guile/2.0/scripts/compile.scm
-/usr/share/guile/2.0/scripts/disassemble.scm
-/usr/share/guile/2.0/scripts/display-commentary.scm
-/usr/share/guile/2.0/scripts/doc-snarf.scm
-/usr/share/guile/2.0/scripts/frisk.scm
-/usr/share/guile/2.0/scripts/generate-autoload.scm
-/usr/share/guile/2.0/scripts/help.scm
-/usr/share/guile/2.0/scripts/lint.scm
-/usr/share/guile/2.0/scripts/list.scm
-/usr/share/guile/2.0/scripts/punify.scm
-/usr/share/guile/2.0/scripts/read-rfc822.scm
-/usr/share/guile/2.0/scripts/read-scheme-source.scm
-/usr/share/guile/2.0/scripts/read-text-outline.scm
-/usr/share/guile/2.0/scripts/scan-api.scm
-/usr/share/guile/2.0/scripts/snarf-check-and-output-texi.scm
-/usr/share/guile/2.0/scripts/snarf-guile-m4-docs.scm
-/usr/share/guile/2.0/scripts/summarize-guile-TODO.scm
-/usr/share/guile/2.0/scripts/use2dot.scm
-/usr/share/guile/2.0/srfi/srfi-1.scm
-/usr/share/guile/2.0/srfi/srfi-10.scm
-/usr/share/guile/2.0/srfi/srfi-11.scm
-/usr/share/guile/2.0/srfi/srfi-111.scm
-/usr/share/guile/2.0/srfi/srfi-13.scm
-/usr/share/guile/2.0/srfi/srfi-14.scm
-/usr/share/guile/2.0/srfi/srfi-16.scm
-/usr/share/guile/2.0/srfi/srfi-17.scm
-/usr/share/guile/2.0/srfi/srfi-18.scm
-/usr/share/guile/2.0/srfi/srfi-19.scm
-/usr/share/guile/2.0/srfi/srfi-2.scm
-/usr/share/guile/2.0/srfi/srfi-26.scm
-/usr/share/guile/2.0/srfi/srfi-27.scm
-/usr/share/guile/2.0/srfi/srfi-28.scm
-/usr/share/guile/2.0/srfi/srfi-31.scm
-/usr/share/guile/2.0/srfi/srfi-34.scm
-/usr/share/guile/2.0/srfi/srfi-35.scm
-/usr/share/guile/2.0/srfi/srfi-37.scm
-/usr/share/guile/2.0/srfi/srfi-38.scm
-/usr/share/guile/2.0/srfi/srfi-39.scm
-/usr/share/guile/2.0/srfi/srfi-4.scm
-/usr/share/guile/2.0/srfi/srfi-4/gnu.scm
-/usr/share/guile/2.0/srfi/srfi-41.scm
-/usr/share/guile/2.0/srfi/srfi-42.scm
-/usr/share/guile/2.0/srfi/srfi-42/ec.scm
-/usr/share/guile/2.0/srfi/srfi-43.scm
-/usr/share/guile/2.0/srfi/srfi-45.scm
-/usr/share/guile/2.0/srfi/srfi-6.scm
-/usr/share/guile/2.0/srfi/srfi-60.scm
-/usr/share/guile/2.0/srfi/srfi-64.scm
-/usr/share/guile/2.0/srfi/srfi-64/testing.scm
-/usr/share/guile/2.0/srfi/srfi-67.scm
-/usr/share/guile/2.0/srfi/srfi-67/compare.scm
-/usr/share/guile/2.0/srfi/srfi-69.scm
-/usr/share/guile/2.0/srfi/srfi-8.scm
-/usr/share/guile/2.0/srfi/srfi-88.scm
-/usr/share/guile/2.0/srfi/srfi-9.scm
-/usr/share/guile/2.0/srfi/srfi-9/gnu.scm
-/usr/share/guile/2.0/srfi/srfi-98.scm
-/usr/share/guile/2.0/statprof.scm
-/usr/share/guile/2.0/sxml/apply-templates.scm
-/usr/share/guile/2.0/sxml/fold.scm
-/usr/share/guile/2.0/sxml/match.scm
-/usr/share/guile/2.0/sxml/simple.scm
-/usr/share/guile/2.0/sxml/ssax.scm
-/usr/share/guile/2.0/sxml/ssax/input-parse.scm
-/usr/share/guile/2.0/sxml/sxml-match.ss
-/usr/share/guile/2.0/sxml/transform.scm
-/usr/share/guile/2.0/sxml/upstream/SSAX.scm
-/usr/share/guile/2.0/sxml/upstream/SXML-tree-trans.scm
-/usr/share/guile/2.0/sxml/upstream/SXPath-old.scm
-/usr/share/guile/2.0/sxml/upstream/assert.scm
-/usr/share/guile/2.0/sxml/upstream/input-parse.scm
-/usr/share/guile/2.0/sxml/xpath.scm
-/usr/share/guile/2.0/system/base/ck.scm
-/usr/share/guile/2.0/system/base/compile.scm
-/usr/share/guile/2.0/system/base/lalr.scm
-/usr/share/guile/2.0/system/base/lalr.upstream.scm
-/usr/share/guile/2.0/system/base/language.scm
-/usr/share/guile/2.0/system/base/message.scm
-/usr/share/guile/2.0/system/base/pmatch.scm
-/usr/share/guile/2.0/system/base/syntax.scm
-/usr/share/guile/2.0/system/base/target.scm
-/usr/share/guile/2.0/system/base/types.scm
-/usr/share/guile/2.0/system/foreign.scm
-/usr/share/guile/2.0/system/repl/command.scm
-/usr/share/guile/2.0/system/repl/common.scm
-/usr/share/guile/2.0/system/repl/coop-server.scm
-/usr/share/guile/2.0/system/repl/debug.scm
-/usr/share/guile/2.0/system/repl/describe.scm
-/usr/share/guile/2.0/system/repl/error-handling.scm
-/usr/share/guile/2.0/system/repl/repl.scm
-/usr/share/guile/2.0/system/repl/server.scm
-/usr/share/guile/2.0/system/vm/coverage.scm
-/usr/share/guile/2.0/system/vm/frame.scm
-/usr/share/guile/2.0/system/vm/inspect.scm
-/usr/share/guile/2.0/system/vm/instruction.scm
-/usr/share/guile/2.0/system/vm/objcode.scm
-/usr/share/guile/2.0/system/vm/program.scm
-/usr/share/guile/2.0/system/vm/trace.scm
-/usr/share/guile/2.0/system/vm/trap-state.scm
-/usr/share/guile/2.0/system/vm/traps.scm
-/usr/share/guile/2.0/system/vm/vm.scm
-/usr/share/guile/2.0/system/xref.scm
-/usr/share/guile/2.0/texinfo.scm
-/usr/share/guile/2.0/texinfo/docbook.scm
-/usr/share/guile/2.0/texinfo/html.scm
-/usr/share/guile/2.0/texinfo/indexing.scm
-/usr/share/guile/2.0/texinfo/plain-text.scm
-/usr/share/guile/2.0/texinfo/reflection.scm
-/usr/share/guile/2.0/texinfo/serialize.scm
-/usr/share/guile/2.0/texinfo/string-utils.scm
-/usr/share/guile/2.0/web/client.scm
-/usr/share/guile/2.0/web/http.scm
-/usr/share/guile/2.0/web/request.scm
-/usr/share/guile/2.0/web/response.scm
-/usr/share/guile/2.0/web/server.scm
-/usr/share/guile/2.0/web/server/http.scm
-/usr/share/guile/2.0/web/uri.scm
-
-%files dev
-%defattr(-,root,root,-)
-%exclude /usr/include/guile/2.0/libguile.h
-%exclude /usr/include/guile/2.0/libguile/__scm.h
-%exclude /usr/include/guile/2.0/libguile/alist.h
-%exclude /usr/include/guile/2.0/libguile/arbiters.h
-%exclude /usr/include/guile/2.0/libguile/array-handle.h
-%exclude /usr/include/guile/2.0/libguile/array-map.h
-%exclude /usr/include/guile/2.0/libguile/arrays.h
-%exclude /usr/include/guile/2.0/libguile/async.h
-%exclude /usr/include/guile/2.0/libguile/backtrace.h
-%exclude /usr/include/guile/2.0/libguile/bdw-gc.h
-%exclude /usr/include/guile/2.0/libguile/bitvectors.h
-%exclude /usr/include/guile/2.0/libguile/boolean.h
-%exclude /usr/include/guile/2.0/libguile/bytevectors.h
-%exclude /usr/include/guile/2.0/libguile/chars.h
-%exclude /usr/include/guile/2.0/libguile/continuations.h
-%exclude /usr/include/guile/2.0/libguile/control.h
-%exclude /usr/include/guile/2.0/libguile/debug-malloc.h
-%exclude /usr/include/guile/2.0/libguile/debug.h
-%exclude /usr/include/guile/2.0/libguile/deprecated.h
-%exclude /usr/include/guile/2.0/libguile/deprecation.h
-%exclude /usr/include/guile/2.0/libguile/dynl.h
-%exclude /usr/include/guile/2.0/libguile/dynwind.h
-%exclude /usr/include/guile/2.0/libguile/eq.h
-%exclude /usr/include/guile/2.0/libguile/error.h
-%exclude /usr/include/guile/2.0/libguile/eval.h
-%exclude /usr/include/guile/2.0/libguile/evalext.h
-%exclude /usr/include/guile/2.0/libguile/expand.h
-%exclude /usr/include/guile/2.0/libguile/extensions.h
-%exclude /usr/include/guile/2.0/libguile/feature.h
-%exclude /usr/include/guile/2.0/libguile/filesys.h
-%exclude /usr/include/guile/2.0/libguile/finalizers.h
-%exclude /usr/include/guile/2.0/libguile/fluids.h
-%exclude /usr/include/guile/2.0/libguile/foreign.h
-%exclude /usr/include/guile/2.0/libguile/fports.h
-%exclude /usr/include/guile/2.0/libguile/frames.h
-%exclude /usr/include/guile/2.0/libguile/gc.h
-%exclude /usr/include/guile/2.0/libguile/gdb_interface.h
-%exclude /usr/include/guile/2.0/libguile/gdbint.h
-%exclude /usr/include/guile/2.0/libguile/generalized-arrays.h
-%exclude /usr/include/guile/2.0/libguile/generalized-vectors.h
-%exclude /usr/include/guile/2.0/libguile/gettext.h
-%exclude /usr/include/guile/2.0/libguile/goops.h
-%exclude /usr/include/guile/2.0/libguile/gsubr.h
-%exclude /usr/include/guile/2.0/libguile/guardians.h
-%exclude /usr/include/guile/2.0/libguile/hash.h
-%exclude /usr/include/guile/2.0/libguile/hashtab.h
-%exclude /usr/include/guile/2.0/libguile/hooks.h
-%exclude /usr/include/guile/2.0/libguile/i18n.h
-%exclude /usr/include/guile/2.0/libguile/init.h
-%exclude /usr/include/guile/2.0/libguile/inline.h
-%exclude /usr/include/guile/2.0/libguile/instructions.h
-%exclude /usr/include/guile/2.0/libguile/ioext.h
-%exclude /usr/include/guile/2.0/libguile/iselect.h
-%exclude /usr/include/guile/2.0/libguile/keywords.h
-%exclude /usr/include/guile/2.0/libguile/list.h
-%exclude /usr/include/guile/2.0/libguile/load.h
-%exclude /usr/include/guile/2.0/libguile/macros.h
-%exclude /usr/include/guile/2.0/libguile/mallocs.h
-%exclude /usr/include/guile/2.0/libguile/memoize.h
-%exclude /usr/include/guile/2.0/libguile/modules.h
-%exclude /usr/include/guile/2.0/libguile/net_db.h
-%exclude /usr/include/guile/2.0/libguile/null-threads.h
-%exclude /usr/include/guile/2.0/libguile/numbers.h
-%exclude /usr/include/guile/2.0/libguile/objcodes.h
-%exclude /usr/include/guile/2.0/libguile/objprop.h
-%exclude /usr/include/guile/2.0/libguile/options.h
-%exclude /usr/include/guile/2.0/libguile/pairs.h
-%exclude /usr/include/guile/2.0/libguile/poll.h
-%exclude /usr/include/guile/2.0/libguile/ports.h
-%exclude /usr/include/guile/2.0/libguile/posix.h
-%exclude /usr/include/guile/2.0/libguile/print.h
-%exclude /usr/include/guile/2.0/libguile/procprop.h
-%exclude /usr/include/guile/2.0/libguile/procs.h
-%exclude /usr/include/guile/2.0/libguile/programs.h
-%exclude /usr/include/guile/2.0/libguile/promises.h
-%exclude /usr/include/guile/2.0/libguile/pthread-threads.h
-%exclude /usr/include/guile/2.0/libguile/r6rs-ports.h
-%exclude /usr/include/guile/2.0/libguile/random.h
-%exclude /usr/include/guile/2.0/libguile/rdelim.h
-%exclude /usr/include/guile/2.0/libguile/read.h
-%exclude /usr/include/guile/2.0/libguile/regex-posix.h
-%exclude /usr/include/guile/2.0/libguile/root.h
-%exclude /usr/include/guile/2.0/libguile/rw.h
-%exclude /usr/include/guile/2.0/libguile/scmconfig.h
-%exclude /usr/include/guile/2.0/libguile/scmsigs.h
-%exclude /usr/include/guile/2.0/libguile/script.h
-%exclude /usr/include/guile/2.0/libguile/simpos.h
-%exclude /usr/include/guile/2.0/libguile/smob.h
-%exclude /usr/include/guile/2.0/libguile/snarf.h
-%exclude /usr/include/guile/2.0/libguile/socket.h
-%exclude /usr/include/guile/2.0/libguile/sort.h
-%exclude /usr/include/guile/2.0/libguile/srcprop.h
-%exclude /usr/include/guile/2.0/libguile/srfi-1.h
-%exclude /usr/include/guile/2.0/libguile/srfi-13.h
-%exclude /usr/include/guile/2.0/libguile/srfi-14.h
-%exclude /usr/include/guile/2.0/libguile/srfi-4.h
-%exclude /usr/include/guile/2.0/libguile/srfi-60.h
-%exclude /usr/include/guile/2.0/libguile/stackchk.h
-%exclude /usr/include/guile/2.0/libguile/stacks.h
-%exclude /usr/include/guile/2.0/libguile/stime.h
-%exclude /usr/include/guile/2.0/libguile/strings.h
-%exclude /usr/include/guile/2.0/libguile/strorder.h
-%exclude /usr/include/guile/2.0/libguile/strports.h
-%exclude /usr/include/guile/2.0/libguile/struct.h
-%exclude /usr/include/guile/2.0/libguile/symbols.h
-%exclude /usr/include/guile/2.0/libguile/tags.h
-%exclude /usr/include/guile/2.0/libguile/threads.h
-%exclude /usr/include/guile/2.0/libguile/throw.h
-%exclude /usr/include/guile/2.0/libguile/trees.h
-%exclude /usr/include/guile/2.0/libguile/unicode.h
-%exclude /usr/include/guile/2.0/libguile/uniform.h
-%exclude /usr/include/guile/2.0/libguile/validate.h
-%exclude /usr/include/guile/2.0/libguile/values.h
-%exclude /usr/include/guile/2.0/libguile/variable.h
-%exclude /usr/include/guile/2.0/libguile/vectors.h
-%exclude /usr/include/guile/2.0/libguile/version.h
-%exclude /usr/include/guile/2.0/libguile/vm-engine.h
-%exclude /usr/include/guile/2.0/libguile/vm-expand.h
-%exclude /usr/include/guile/2.0/libguile/vm.h
-%exclude /usr/include/guile/2.0/libguile/vports.h
-%exclude /usr/include/guile/2.0/libguile/weaks.h
-%exclude /usr/include/guile/2.0/readline.h
-%exclude /usr/lib64/libguile-2.0.so
-%exclude /usr/lib64/libguilereadline-v-18.so
-%exclude /usr/lib64/pkgconfig/guile-2.0.pc
-%exclude /usr/share/aclocal/guile.m4
-
-%files doc
-%defattr(-,root,root,-)
-%exclude /usr/share/info/guile.info
-%exclude /usr/share/info/guile.info-1
-%exclude /usr/share/info/guile.info-10
-%exclude /usr/share/info/guile.info-2
-%exclude /usr/share/info/guile.info-3
-%exclude /usr/share/info/guile.info-4
-%exclude /usr/share/info/guile.info-5
-%exclude /usr/share/info/guile.info-6
-%exclude /usr/share/info/guile.info-7
-%exclude /usr/share/info/guile.info-8
-%exclude /usr/share/info/guile.info-9
-%exclude /usr/share/info/r5rs.info
-%exclude /usr/share/man/man1/guile.1
 
 %files lib
 %defattr(-,root,root,-)
-%exclude /usr/lib64/libguile-2.0.so.22.8.1-gdb.scm
 /usr/lib64/libguile-2.0.so.22
 /usr/lib64/libguile-2.0.so.22.8.1
+/usr/lib64/libguile-2.0.so.22.8.1-gdb.scm
 /usr/lib64/libguilereadline-v-18.so.18
 /usr/lib64/libguilereadline-v-18.so.18.0.0
+
+%files license
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/compat-guile-soname20/COPYING
+/usr/share/package-licenses/compat-guile-soname20/COPYING.LESSER
+/usr/share/package-licenses/compat-guile-soname20/LICENSE
