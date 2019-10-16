@@ -6,7 +6,7 @@
 #
 Name     : compat-guile-soname20
 Version  : 2.0.13
-Release  : 10
+Release  : 11
 URL      : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz
 Source0  : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz
 Source1 : ftp://ftp.gnu.org/gnu/guile/guile-2.0.13.tar.gz.sig
